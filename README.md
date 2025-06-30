@@ -64,11 +64,11 @@ python manage.py runserver
 
 
 ## ✨ Planned Features:
-1.💾 Export query results to PDF
-2.🧠 Model-wise comparison graphs
-3.🌍 Deployment on Render/EC2
-4.🌓 Dark mode toggle
-5.🔄 Editable query re-run
+1. 💾 Export query results to PDF
+2. 🧠 Model-wise comparison graph
+3. 🌍 Deployment on Render/EC2
+4. 🌓 Dark mode toggle
+5. 🔄 Editable query re-run
 
 
 ## 🤝 Contributing
