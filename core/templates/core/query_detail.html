@@ -1,0 +1,34 @@
+{% block content %}
+<h2>📌 Query</h2>
+<p>{{ query.query_text }}</p>
+
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem">
+	{% if query.gpt_response %}
+	<div class="block">
+		<h3>🧠 GPT-4o:</h3>
+		<p>{{ query.gpt_response }}</p>
+	</div>
+	{% endif %} {% if query.gemini_response %}
+	<div class="block">
+		<h3>🌟 Gemini 2.5:</h3>
+		<p>{{ query.gemini_response }}</p>
+	</div>
+	{% endif %} {% if query.mistral_response %}
+	<div class="block">
+		<h3>🔷 Mistral 12B:</h3>
+		<p>{{ query.mistral_response }}</p>
+	</div>
+	{% endif %} {% if query.llama_response %}
+	<div class="block">
+		<h3>🦙 LLaMA 3:</h3>
+		<p>{{ query.llama_response }}</p>
+	</div>
+	{% endif %}
+</div>
+
+{% if query.gemini_comparison %}
+<div class="block" style="margin-top: 2rem; background: #fef9c3">
+	<h3>🏆 Gemini Comparison (Best Response):</h3>
+	<p>{{ query.gemini_comparison }}</p>
+</div>
+{% endif %} {% endblock %}

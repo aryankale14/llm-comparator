@@ -1,0 +1,188 @@
+{% extends "core/base.html" %} {% block title %}Home | LLM Arena{% endblock %}
+{% block content %}
+<style>
+	.response-box {
+		max-height: 250px;
+		overflow-y: auto;
+		padding: 1rem;
+		border: 1px solid #ddd;
+		background: #fff;
+		border-radius: 6px;
+		position: relative;
+		white-space: pre-wrap;
+	}
+
+	.copy-btn {
+		position: absolute;
+		top: 8px;
+		right: 10px;
+		background: #f3f4f6;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		padding: 2px 6px;
+		font-size: 12px;
+		cursor: pointer;
+	}
+
+	.toggle-btn {
+		display: inline-block;
+		margin-top: 8px;
+		background: none;
+		border: none;
+		color: #2563eb;
+		cursor: pointer;
+		font-size: 13px;
+	}
+</style>
+
+<div class="block" style="max-width: 900px; margin: auto">
+	<h2 style="text-align: center">Compare AI Models</h2>
+
+	{% if messages %} {% for message in messages %}
+	<div
+		style="
+			padding: 10px;
+			background-color: lightyellow;
+			border: 1px solid gray;
+			margin-bottom: 10px;
+		"
+	>
+		{{ message }}
+	</div>
+	{% endfor %} {% endif %}
+
+	<form method="post" style="margin-top: 20px">
+		{% csrf_token %}
+		<div class="form-group" style="margin-bottom: 15px">
+			<label for="query"><strong>Your Query:</strong></label>
+			<textarea
+				name="query"
+				rows="4"
+				required
+				style="width: 100%; padding: 10px"
+			>
+{{ query }}</textarea
+			>
+		</div>
+
+		<div class="form-group" style="margin-bottom: 15px">
+			<label><strong>Select AI Models:</strong></label>
+			<div class="checkboxes" style="display: flex; flex-wrap: wrap; gap: 10px">
+				<label
+					><input type="checkbox" name="models" value="gpt" />
+					GPT-4o-mini</label
+				>
+				<label
+					><input type="checkbox" name="models" value="gemini" /> Gemini
+					2.5</label
+				>
+				<label
+					><input type="checkbox" name="models" value="mistral" /> Mistral
+					12B</label
+				>
+				<label
+					><input type="checkbox" name="models" value="llama" /> LLaMA 3</label
+				>
+			</div>
+		</div>
+
+		<input
+			type="submit"
+			value="Compare"
+			style="
+				padding: 10px 20px;
+				background-color: #007bff;
+				border: none;
+				color: white;
+				cursor: pointer;
+				border-radius: 5px;
+			"
+		/>
+	</form>
+</div>
+
+<!-- 🧠 Model Responses -->
+{% if result %}
+<div class="block" style="margin-top: 30px">
+	<h3>Responses:</h3>
+	<div
+		style="
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1rem;
+			margin-top: 1rem;
+		"
+	>
+		{% for model, response in result.items %}
+		<div class="response-box">
+			<button class="copy-btn" onclick="copyToClipboard(this)">📋</button>
+			<h4>{{ model }}</h4>
+			<p class="short-text">{{ response|truncatechars:300 }}</p>
+			<p class="full-text" style="display: none">{{ response }}</p>
+			<button class="toggle-btn" onclick="toggleText(this)">Show More</button>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endif %}
+
+<!-- 🏆 Gemini Comparison -->
+{% if comparison %}
+<div
+	class="block"
+	style="
+		margin-top: 30px;
+		background-color: #fff8dc;
+		border-left: 5px solid orange;
+	"
+>
+	<h3>🏆 Final Evaluation:</h3>
+	<pre id="comparison-text" style="white-space: pre-wrap">{{ comparison }}</pre>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const raw = document.getElementById("comparison-text");
+		if (raw) {
+			let cleaned = raw.innerText
+				.replace(/\*\*/g, "")
+				.replace(/\*/g, "")
+				.replace(/(?:\r\n|\r|\n)/g, "<br>")
+				.replace(/Response (\d)/g, "<strong>Response $1</strong>")
+				.replace(/Best:\s*(.+?)<br>/i, "<strong>Best Model:</strong> $1<br>");
+			raw.innerHTML = cleaned;
+		}
+	});
+</script>
+{% endif %}
+
+<script>
+	function toggleText(btn) {
+		const box = btn.parentElement;
+		const shortText = box.querySelector(".short-text");
+		const fullText = box.querySelector(".full-text");
+
+		if (shortText.style.display === "none") {
+			shortText.style.display = "block";
+			fullText.style.display = "none";
+			btn.innerText = "Show More";
+		} else {
+			shortText.style.display = "none";
+			fullText.style.display = "block";
+			btn.innerText = "Show Less";
+		}
+	}
+
+	function copyToClipboard(button) {
+		const text =
+			button.parentElement.querySelector(".full-text").innerText ||
+			button.parentElement.querySelector(".short-text").innerText;
+		navigator.clipboard.writeText(text);
+		button.innerText = "✅";
+		setTimeout(() => {
+			button.innerText = "📋";
+		}, 1000);
+	}
+</script>
+
+{% endblock %}

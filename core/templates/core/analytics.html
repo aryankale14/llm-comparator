@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<h2>📊 Admin Analytics</h2>
+
+<form method="get" style="margin-bottom: 1rem;">
+  <label for="filter">Filter:</label>
+  <select name="filter" onchange="this.form.submit()">
+    <option value="all" {% if filter_option == 'all' %}selected{% endif %}>All Time</option>
+    <option value="7d" {% if filter_option == '7d' %}selected{% endif %}>Last 7 Days</option>
+    <option value="30d" {% if filter_option == '30d' %}selected{% endif %}>Last 30 Days</option>
+  </select>
+</form>
+
+<div class="block">
+  <h3>Total Queries: {{ total_queries }}</h3>
+</div>
+
+<div class="block">
+  <h3>Usage Per User:</h3>
+  <ul>
+    {% for u in queries_per_user %}
+      <li>{{ u.user__username }} — {{ u.count }} queries</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="block">
+  <h3>Model Usage Breakdown:</h3>
+  <ul>
+    {% for model, count in per_model_usage.items %}
+      <li>{{ model|upper }} — {{ count }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="block">
+  <h3>📊 Charts</h3>
+  <canvas id="modelChart" height="200"></canvas>
+  <canvas id="dailyChart" height="200"></canvas>
+</div>
+{{ per_model_usage|json_script:"model-data" }}
+{{ daily_query_data|json_script:"daily-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+	const modelData = JSON.parse(document.getElementById("model-data").textContent);
+	const dailyData = JSON.parse(document.getElementById("daily-data").textContent);
+  
+	new Chart(document.getElementById("modelChart"), {
+	  type: "bar",
+	  data: {
+		labels: Object.keys(modelData),
+		datasets: [{
+		  label: "Model Usage",
+		  data: Object.values(modelData),
+		  backgroundColor: "#60a5fa",
+		  borderColor: "#3b82f6",
+		  borderWidth: 1
+		}]
+	  }
+	});
+  
+	new Chart(document.getElementById("dailyChart"), {
+	  type: "line",
+	  data: {
+		labels: Object.keys(dailyData),
+		datasets: [{
+		  label: "Daily Queries",
+		  data: Object.values(dailyData),
+		  borderColor: "#22c55e",
+		  fill: false,
+		  tension: 0.2
+		}]
+	  }
+	});
+  </script>
+  
+{% endblock %}

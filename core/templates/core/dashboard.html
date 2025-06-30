@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>📋 My Queries</h2>
+
+{% if queries %} {% for q in queries %}
+<div class="block" style="margin-bottom: 1rem">
+	<a class="query-link" href="{% url 'query_detail' q.id %}">
+		<strong>{{ q.timestamp|date:"d M Y H:i" }}</strong><br />
+		{{ q.query_text|truncatechars:80 }}
+	</a>
+</div>
+{% endfor %} {% else %}
+<p>No queries yet.</p>
+{% endif %} {% endblock %}
